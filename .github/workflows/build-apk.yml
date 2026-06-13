@@ -5,6 +5,12 @@ on:
   push:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,13 +28,30 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Clean Gradle and Android caches
+        run: |
+          rm -rf ~/.gradle/caches
+          rm -rf ~/.gradle/daemon
+          rm -rf ~/.gradle/native
+          rm -rf ~/.android/build-cache
+          rm -rf .gradle
+          rm -rf build
+          rm -rf app/build
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+          cache-disabled: true
+          gradle-home-cache-cleanup: true
 
-      - name: Build debug APK
-        run: gradle assembleDebug
+      - name: Build debug APK with fresh dependencies
+        run: gradle --no-daemon --refresh-dependencies clean assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
