@@ -34,6 +34,10 @@ This app uses a foreground service because it is the most reliable personal-app 
 3. Plug in your phone or use an emulator.
 4. Press Run.
 
+## GitHub Actions APK build
+
+This repo includes `.github/workflows/build-apk.yml`, which builds a debug APK and uploads it as `PlaceReminder-debug-apk`.
+
 ## Permissions
 
 The app asks for:
